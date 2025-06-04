@@ -44,11 +44,6 @@ h2 {
   text-align: center;
 }
 
- #timer {
-  font-size: 2.5em;
-  text-align: center;
-  margin-bottom: 20px;
- }
 
  #roundClock {
   font-size: 3em;
@@ -86,7 +81,6 @@ h2 {
 <div class="container">
 <div id="leftPane">
 <section class="card">
-<div id="timer"></div>
 <button id="simulate">Simulate tournamente</button>
 <button id="newTournament" disabled>Start a New Tournament</button>
 <button id="startRound" class="success" disabled>Start Round 1</button>
@@ -338,6 +332,7 @@ function recordResult(round, index, outcome) {
 
 function startTimer(duration) {
   const timer = document.getElementById('timer');
+  if (!timer) return;
   let remaining = duration;
   timer.textContent = formatTime(remaining);
   const interval = setInterval(() => {

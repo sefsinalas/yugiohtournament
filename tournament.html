@@ -545,27 +545,19 @@ document.getElementById('startRound').addEventListener('click', () => {
 
 document.getElementById('restartRound').addEventListener('click', () => {
   if (currentRound <= 0) return;
-  const round = currentRound;
-  delete pairings[round];
-  delete results[round];
+  setStarted(true);
+  if (!tournamentStartTime) startTournamentTimer();
+  const pr = currentRound === 1 ? randomizePairingsList(participants) : swissPairings();
+  pairings[currentRound] = pr;
+  results[currentRound] = {};
   savePairings();
   saveResults();
-  currentRound--;
-  saveCurrentRound();
-  const pairSec = document.getElementById('pairingsList' + (round)).parentElement;
-  const resSec = document.getElementById('resultsSection' + (round));
-  if (pairSec && resSec) {
-    pairSec.style.display = 'none';
-    pairSec.querySelector('ul').innerHTML = '';
-    resSec.style.display = 'none';
-    resSec.innerHTML = '';
-  }
   updateScores();
-  document.getElementById('startRound').disabled = false;
-  document.getElementById('startRound').textContent = `Start Round ${round}`;
-  if (currentRound === 0) {
-    document.getElementById('restartRound').disabled = true;
-  }
+  displayPairings(pr, currentRound);
+  displayResults(pr, results[currentRound], currentRound);
+  document.getElementById('startRound').disabled = true;
+  document.getElementById('restartRound').disabled = false;
+  startTimer(45 * 60);
 });
 
 function checkRoundCompletion(round) {

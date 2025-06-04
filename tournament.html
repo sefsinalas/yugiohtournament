@@ -76,10 +76,13 @@ h2 {
 <h1>Tournament</h1>
 <section class="card">
 <div id="timer"></div>
+<button id="simulate">Simulate tournamente</button>
 <button id="newTournament">Start a New Tournament</button>
 <button id="randomize">Randomize Pairings</button>
 <button id="startRound" class="success">Start First Round</button>
 </section>
+<h2>Simulation</h2>
+<section class="card" id="simulationSection" style="display:none"></section>
 <h2>Pairings of the first round</h2>
 <section class="card">
 <ul id="pairingsList"></ul>
@@ -264,6 +267,24 @@ function formatTime(seconds) {
   return `${m}:${s}`;
 }
 
+function swissRounds(players) {
+  return Math.ceil(Math.log2(players));
+}
+
+function formatDuration(minutes) {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return h > 0 ? `${h}h ${m}m` : `${m}m`;
+}
+
+function simulateTournament() {
+  const section = document.getElementById('simulationSection');
+  const rounds = swissRounds(participants.length);
+  const totalMinutes = rounds * (45 + 5);
+  section.innerHTML = `Number of rounds: ${rounds}<br>Estimated time: ${formatDuration(totalMinutes)}`;
+  section.style.display = 'block';
+}
+
 const participants = loadParticipants();
 let pairings = [];
 let results = {};
@@ -292,6 +313,8 @@ function initialize() {
 }
 
 initialize();
+
+document.getElementById('simulate').addEventListener('click', simulateTournament);
 
 document.getElementById('newTournament').addEventListener('click', () => {
   localStorage.removeItem(PAIRINGS_KEY);

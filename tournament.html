@@ -77,18 +77,12 @@ h2 {
 <section class="card">
 <div id="timer"></div>
 <button id="simulate">Simulate tournamente</button>
-<button id="newTournament">Start a New Tournament</button>
-<button id="randomize">Randomize Pairings</button>
-<button id="startRound" class="success">Start First Round</button>
+<button id="newTournament" disabled>Start a New Tournament</button>
+<button id="startRound" class="success" disabled>Start Round 1</button>
 </section>
 <h2>Simulation</h2>
 <section class="card" id="simulationSection" style="display:none"></section>
-<h2>Pairings of the first round</h2>
-<section class="card">
-<ul id="pairingsList"></ul>
-</section>
-<h2>Results</h2>
-<section class="card" id="resultsSection"></section>
+<div id="roundsContainer"></div>
 </div>
 <div id="rightPane" class="card">
 <h2>Tabla de Posiciones</h2>
@@ -102,9 +96,13 @@ h2 {
 <script>
 const PARTICIPANTS_KEY = 'participants';
 const STARTED_KEY = 'tournamentStarted';
-const PAIRINGS_KEY = 'pairings';
-const RESULTS_KEY = 'round1Results';
-const SCORES_KEY = 'round1Scores';
+const SIMULATED_KEY = 'tournamentSimulated';
+
+let totalRounds = 0;
+let currentRound = 0;
+let pairings = {};
+let results = {};
+let scores = {};
 
 function loadParticipants() {
   const data = localStorage.getItem(PARTICIPANTS_KEY);
@@ -112,27 +110,15 @@ function loadParticipants() {
   try { return JSON.parse(data); } catch (e) { return []; }
 }
 
-function savePairings(pairings) {
-  localStorage.setItem(PAIRINGS_KEY, JSON.stringify(pairings));
-}
+function savePairings() {}
 
-function loadResults() {
-  const data = localStorage.getItem(RESULTS_KEY);
-  return data ? JSON.parse(data) : {};
-}
+function loadResults() { return {}; }
 
-function saveResults(results) {
-  localStorage.setItem(RESULTS_KEY, JSON.stringify(results));
-}
+function saveResults() {}
 
-function loadScores() {
-  const data = localStorage.getItem(SCORES_KEY);
-  return data ? JSON.parse(data) : {};
-}
+function loadScores() { return {}; }
 
-function saveScores(scores) {
-  localStorage.setItem(SCORES_KEY, JSON.stringify(scores));
-}
+function saveScores() {}
 
 function getStarted() {
   return localStorage.getItem(STARTED_KEY) === 'true';
@@ -140,6 +126,14 @@ function getStarted() {
 
 function setStarted(val) {
   localStorage.setItem(STARTED_KEY, val ? 'true' : 'false');
+}
+
+function getSimulated() {
+  return localStorage.getItem(SIMULATED_KEY) === 'true';
+}
+
+function setSimulated(val) {
+  localStorage.setItem(SIMULATED_KEY, val ? 'true' : 'false');
 }
 
 function randomizePairingsList(participants) {
@@ -157,20 +151,31 @@ function randomizePairingsList(participants) {
   return pairings;
 }
 
-function displayPairings(pairings) {
-  const list = document.getElementById('pairingsList');
+function swissPairings() {
+  const players = participants.map(p => p.name).sort((a, b) => (scores[b] || 0) - (scores[a] || 0));
+  const out = [];
+  for (let i = 0; i < players.length; i += 2) {
+    const p1 = players[i];
+    const p2 = players[i + 1] || 'BYE';
+    out.push({ p1, p2 });
+  }
+  return out;
+}
+
+function displayPairings(roundPairings, round) {
+  const list = document.getElementById('pairingsList' + round);
   list.innerHTML = '';
-  pairings.forEach((p, idx) => {
+  roundPairings.forEach((p, idx) => {
     const li = document.createElement('li');
     li.textContent = `${idx + 1}. ${p.p1} vs ${p.p2}`;
     list.appendChild(li);
   });
 }
 
-function displayResults(pairings, results) {
-  const container = document.getElementById('resultsSection');
+function displayResults(roundPairings, roundResults, round) {
+  const container = document.getElementById('resultsSection' + round);
   container.innerHTML = '';
-  pairings.forEach((p, idx) => {
+  roundPairings.forEach((p, idx) => {
     const div = document.createElement('div');
     const label = document.createElement('span');
     label.textContent = `Match ${idx + 1}: `;
@@ -183,7 +188,7 @@ function displayResults(pairings, results) {
     const draw = document.createElement('button');
     draw.textContent = 'Draw';
 
-    const outcome = results[idx];
+    const outcome = roundResults[idx];
     if (outcome === 'p1') {
       b1.classList.add('success');
     } else if (outcome === 'p2') {
@@ -192,9 +197,9 @@ function displayResults(pairings, results) {
       draw.classList.add('success');
     }
 
-    b1.addEventListener('click', () => recordResult(idx, 'p1'));
-    b2.addEventListener('click', () => recordResult(idx, 'p2'));
-    draw.addEventListener('click', () => recordResult(idx, 'draw'));
+    b1.addEventListener('click', () => recordResult(round, idx, 'p1'));
+    b2.addEventListener('click', () => recordResult(round, idx, 'p2'));
+    draw.addEventListener('click', () => recordResult(round, idx, 'draw'));
 
     div.appendChild(b1);
     div.appendChild(b2);
@@ -223,29 +228,32 @@ function displayScores(scores) {
 }
 
 function updateScores() {
-  const scores = {};
-  pairings.forEach((p, idx) => {
-    if (!scores[p.p1]) scores[p.p1] = 0;
-    if (!scores[p.p2]) scores[p.p2] = 0;
-    const r = results[idx];
-    if (r === 'p1') {
-      scores[p.p1] += 3;
-    } else if (r === 'p2') {
-      scores[p.p2] += 3;
-    } else if (r === 'draw') {
-      scores[p.p1] += 1;
-      scores[p.p2] += 1;
-    }
-  });
-  saveScores(scores);
+  scores = {};
+  for (let r = 1; r <= currentRound; r++) {
+    const pr = pairings[r] || [];
+    pr.forEach((p, idx) => {
+      if (!scores[p.p1]) scores[p.p1] = 0;
+      if (!scores[p.p2]) scores[p.p2] = 0;
+      const res = (results[r] || {})[idx];
+      if (res === 'p1') {
+        scores[p.p1] += 3;
+      } else if (res === 'p2') {
+        scores[p.p2] += 3;
+      } else if (res === 'draw') {
+        scores[p.p1] += 1;
+        scores[p.p2] += 1;
+      }
+    });
+  }
   displayScores(scores);
 }
 
-function recordResult(index, outcome) {
-  results[index] = outcome;
-  saveResults(results);
+function recordResult(round, index, outcome) {
+  if (!results[round]) results[round] = {};
+  results[round][index] = outcome;
   updateScores();
-  displayResults(pairings, results);
+  displayResults(pairings[round], results[round], round);
+  checkRoundCompletion(round);
 }
 
 function startTimer(duration) {
@@ -279,75 +287,92 @@ function formatDuration(minutes) {
 
 function simulateTournament() {
   const section = document.getElementById('simulationSection');
-  const rounds = swissRounds(participants.length);
-  const totalMinutes = rounds * (45 + 5);
-  section.innerHTML = `Number of rounds: ${rounds}<br>Estimated time: ${formatDuration(totalMinutes)}`;
+  totalRounds = swissRounds(participants.length);
+  const totalMinutes = totalRounds * (45 + 5);
+  section.innerHTML = `Number of rounds: ${totalRounds}<br>Estimated time: ${formatDuration(totalMinutes)}`;
   section.style.display = 'block';
+  setSimulated(true);
+  document.getElementById('newTournament').disabled = false;
 }
 
 const participants = loadParticipants();
-let pairings = [];
-let results = {};
 
 function initialize() {
-  pairings = localStorage.getItem(PAIRINGS_KEY);
-  if (pairings) {
-    try { pairings = JSON.parse(pairings); } catch (e) { pairings = []; }
-    if (pairings.length && typeof pairings[0] === 'string') {
-      pairings = pairings.map(str => {
-        const parts = str.split(' vs ');
-        return { p1: parts[0], p2: parts[1] || 'BYE' };
-      });
-      savePairings(pairings);
-    }
-  } else {
-    pairings = [];
+  if (!getSimulated()) {
+    document.getElementById('newTournament').disabled = true;
   }
-  results = loadResults();
-  displayPairings(pairings);
-  displayResults(pairings, results);
-  displayScores(loadScores());
-  if (getStarted()) {
-    document.getElementById('randomize').disabled = true;
-  }
+  displayScores({});
 }
 
 initialize();
 
+function createRoundSections() {
+  const container = document.getElementById('roundsContainer');
+  container.innerHTML = '';
+  for (let i = 1; i <= totalRounds; i++) {
+    const h = document.createElement('h2');
+    h.textContent = `Round ${i}`;
+    const pairS = document.createElement('section');
+    pairS.className = 'card';
+    const ul = document.createElement('ul');
+    ul.id = `pairingsList${i}`;
+    pairS.appendChild(ul);
+    const resS = document.createElement('section');
+    resS.className = 'card';
+    resS.id = `resultsSection${i}`;
+    if (i !== 1) {
+      pairS.style.display = 'none';
+      resS.style.display = 'none';
+    }
+    container.appendChild(h);
+    container.appendChild(pairS);
+    container.appendChild(resS);
+  }
+}
+
 document.getElementById('simulate').addEventListener('click', simulateTournament);
 
 document.getElementById('newTournament').addEventListener('click', () => {
-  localStorage.removeItem(PAIRINGS_KEY);
-  localStorage.removeItem(RESULTS_KEY);
-  localStorage.removeItem(SCORES_KEY);
-  setStarted(false);
-  pairings = randomizePairingsList(participants);
-  savePairings(pairings);
+  if (!getSimulated()) return;
+  pairings = {};
   results = {};
-  displayPairings(pairings);
-  displayResults(pairings, results);
-  displayScores({});
-  document.getElementById('randomize').disabled = false;
-});
-
-document.getElementById('randomize').addEventListener('click', () => {
-  if (getStarted()) return;
-  pairings = randomizePairingsList(participants);
-  savePairings(pairings);
-  results = {};
-  saveResults(results);
-  saveScores({});
-  displayPairings(pairings);
-  displayResults(pairings, results);
-  displayScores({});
+  scores = {};
+  currentRound = 0;
+  displayScores(scores);
+  createRoundSections();
+  document.getElementById('startRound').disabled = false;
+  document.getElementById('startRound').textContent = 'Start Round 1';
 });
 
 document.getElementById('startRound').addEventListener('click', () => {
-  if (getStarted()) return;
+  if (currentRound >= totalRounds) return;
+  currentRound++;
   setStarted(true);
-  document.getElementById('randomize').disabled = true;
+  let pr = currentRound === 1 ? randomizePairingsList(participants) : swissPairings();
+  pairings[currentRound] = pr;
+  results[currentRound] = {};
+  displayPairings(pr, currentRound);
+  displayResults(pr, results[currentRound], currentRound);
+  document.getElementById('startRound').disabled = true;
   startTimer(45 * 60);
 });
+
+function checkRoundCompletion(round) {
+  if (Object.keys(results[round]).length === pairings[round].length) {
+    setStarted(false);
+    if (round < totalRounds) {
+      const next = round + 1;
+      document.getElementById('startRound').disabled = false;
+      document.getElementById('startRound').textContent = `Start Round ${next}`;
+      const pairSec = document.getElementById('pairingsList' + next).parentElement;
+      const resSec = document.getElementById('resultsSection' + next);
+      pairSec.style.display = 'block';
+      resSec.style.display = 'block';
+    } else {
+      document.getElementById('startRound').disabled = true;
+    }
+  }
+}
 </script>
 </div>
 </body>

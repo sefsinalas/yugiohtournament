@@ -13,8 +13,24 @@
  }
 
  .container {
-  max-width: 800px;
+  max-width: 1000px;
   margin: auto;
+  display: flex;
+  gap: 20px;
+ }
+
+ #leftPane { flex: 2; }
+ #rightPane { flex: 1; }
+
+ #rightPane table {
+  width: 100%;
+  border-collapse: collapse;
+ }
+
+ #rightPane th, #rightPane td {
+  border-bottom: 1px solid #ddd;
+  padding: 4px;
+  text-align: left;
  }
 
 h1 {
@@ -56,6 +72,7 @@ h2 {
 </head>
 <body>
 <div class="container">
+<div id="leftPane">
 <h1>Tournament</h1>
 <section class="card">
 <div id="timer"></div>
@@ -69,6 +86,16 @@ h2 {
 </section>
 <h2>Results</h2>
 <section class="card" id="resultsSection"></section>
+</div>
+<div id="rightPane" class="card">
+<h2>Tabla de Posiciones</h2>
+<table id="scoreTable">
+<thead>
+<tr><th>#</th><th>Nombre</th><th>Puntos</th></tr>
+</thead>
+<tbody id="scoreTableBody"></tbody>
+</table>
+</div>
 <script>
 const PARTICIPANTS_KEY = 'participants';
 const STARTED_KEY = 'tournamentStarted';
@@ -173,6 +200,25 @@ function displayResults(pairings, results) {
   });
 }
 
+function displayScores(scores) {
+  const body = document.getElementById('scoreTableBody');
+  body.innerHTML = '';
+  const entries = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+  entries.forEach(([name, pts], idx) => {
+    const tr = document.createElement('tr');
+    const pos = document.createElement('td');
+    pos.textContent = idx + 1;
+    const nm = document.createElement('td');
+    nm.textContent = name;
+    const sc = document.createElement('td');
+    sc.textContent = pts;
+    tr.appendChild(pos);
+    tr.appendChild(nm);
+    tr.appendChild(sc);
+    body.appendChild(tr);
+  });
+}
+
 function updateScores() {
   const scores = {};
   pairings.forEach((p, idx) => {
@@ -189,6 +235,7 @@ function updateScores() {
     }
   });
   saveScores(scores);
+  displayScores(scores);
 }
 
 function recordResult(index, outcome) {
@@ -238,6 +285,7 @@ function initialize() {
   results = loadResults();
   displayPairings(pairings);
   displayResults(pairings, results);
+  displayScores(loadScores());
   if (getStarted()) {
     document.getElementById('randomize').disabled = true;
   }
@@ -255,6 +303,7 @@ document.getElementById('newTournament').addEventListener('click', () => {
   results = {};
   displayPairings(pairings);
   displayResults(pairings, results);
+  displayScores({});
   document.getElementById('randomize').disabled = false;
 });
 
@@ -267,6 +316,7 @@ document.getElementById('randomize').addEventListener('click', () => {
   saveScores({});
   displayPairings(pairings);
   displayResults(pairings, results);
+  displayScores({});
 });
 
 document.getElementById('startRound').addEventListener('click', () => {

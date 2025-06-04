@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Add Participant</title>
+<style>
+ body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+ }
+ form {
+  margin-bottom: 20px;
+ }
+ label {
+  margin-right: 10px;
+ }
+ ul {
+  list-style-type: none;
+  padding-left: 0;
+ }
+ li {
+  padding: 5px 0;
+ }
+</style>
+</head>
+<body>
+<h1>Add Participant</h1>
+<form id="participantForm">
+ <label for="name">Name:</label>
+ <input type="text" id="name" required>
+ <label for="paid">Paid:</label>
+ <input type="checkbox" id="paid">
+ <button type="submit">Add</button>
+</form>
+<ul id="participantList"></ul>
+<script>
+ const form = document.getElementById('participantForm');
+ const list = document.getElementById('participantList');
+ const STORAGE_KEY = 'participants';
+
+ function loadParticipants() {
+  const data = localStorage.getItem(STORAGE_KEY);
+  if (!data) return [];
+  try { return JSON.parse(data); } catch (e) { return []; }
+ }
+
+ function saveParticipants(participants) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(participants));
+ }
+
+ function displayParticipants(participants) {
+  list.innerHTML = '';
+  participants.forEach(p => {
+   const li = document.createElement('li');
+   li.textContent = `${p.name} - ${p.paid ? 'Paid' : 'Not Paid'}`;
+   list.appendChild(li);
+  });
+ }
+
+ const participants = loadParticipants();
+ displayParticipants(participants);
+
+ form.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const name = document.getElementById('name').value.trim();
+  const paid = document.getElementById('paid').checked;
+  if (name === '') return;
+  participants.push({ name, paid });
+  saveParticipants(participants);
+  displayParticipants(participants);
+  form.reset();
+ });
+</script>
+</body>
+</html>

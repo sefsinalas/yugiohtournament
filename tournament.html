@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tournament</title>
+<style>
+ body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+ }
+ #timer {
+  font-size: 2em;
+  margin-bottom: 20px;
+ }
+ button {
+  margin-right: 10px;
+ }
+ ul {
+  list-style-type: none;
+  padding-left: 0;
+ }
+ li {
+  padding: 5px 0;
+ }
+</style>
+</head>
+<body>
+<h1>Tournament</h1>
+<div id="timer"></div>
+<button id="newTournament">Start a New Tournament</button>
+<button id="randomize">Randomize Pairings</button>
+<button id="startRound">Start First Round</button>
+<h2>Pairings</h2>
+<ul id="pairingsList"></ul>
+<script>
+const PARTICIPANTS_KEY = 'participants';
+const STARTED_KEY = 'tournamentStarted';
+const PAIRINGS_KEY = 'pairings';
+
+function loadParticipants() {
+  const data = localStorage.getItem(PARTICIPANTS_KEY);
+  if (!data) return [];
+  try { return JSON.parse(data); } catch (e) { return []; }
+}
+
+function savePairings(pairings) {
+  localStorage.setItem(PAIRINGS_KEY, JSON.stringify(pairings));
+}
+
+function getStarted() {
+  return localStorage.getItem(STARTED_KEY) === 'true';
+}
+
+function setStarted(val) {
+  localStorage.setItem(STARTED_KEY, val ? 'true' : 'false');
+}
+
+function randomizePairingsList(participants) {
+  const shuffled = [...participants];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  const pairings = [];
+  for (let i = 0; i < shuffled.length; i += 2) {
+    const p1 = shuffled[i];
+    const p2 = shuffled[i + 1] || { name: 'BYE' };
+    pairings.push(`${p1.name} vs ${p2.name}`);
+  }
+  return pairings;
+}
+
+function displayPairings(pairings) {
+  const list = document.getElementById('pairingsList');
+  list.innerHTML = '';
+  pairings.forEach(p => {
+    const li = document.createElement('li');
+    li.textContent = p;
+    list.appendChild(li);
+  });
+}
+
+function startTimer(duration) {
+  const timer = document.getElementById('timer');
+  let remaining = duration;
+  timer.textContent = formatTime(remaining);
+  const interval = setInterval(() => {
+    remaining--;
+    timer.textContent = formatTime(remaining);
+    if (remaining <= 0) {
+      clearInterval(interval);
+    }
+  }, 1000);
+}
+
+function formatTime(seconds) {
+  const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+  const s = (seconds % 60).toString().padStart(2, '0');
+  return `${m}:${s}`;
+}
+
+const participants = loadParticipants();
+let pairings = [];
+
+function initialize() {
+  pairings = localStorage.getItem(PAIRINGS_KEY);
+  if (pairings) {
+    try { pairings = JSON.parse(pairings); } catch (e) { pairings = []; }
+  } else {
+    pairings = [];
+  }
+  displayPairings(pairings);
+  if (getStarted()) {
+    document.getElementById('randomize').disabled = true;
+  }
+}
+
+initialize();
+
+document.getElementById('newTournament').addEventListener('click', () => {
+  localStorage.removeItem(PAIRINGS_KEY);
+  setStarted(false);
+  pairings = randomizePairingsList(participants);
+  savePairings(pairings);
+  displayPairings(pairings);
+  document.getElementById('randomize').disabled = false;
+});
+
+document.getElementById('randomize').addEventListener('click', () => {
+  if (getStarted()) return;
+  pairings = randomizePairingsList(participants);
+  savePairings(pairings);
+  displayPairings(pairings);
+});
+
+document.getElementById('startRound').addEventListener('click', () => {
+  if (getStarted()) return;
+  setStarted(true);
+  document.getElementById('randomize').disabled = true;
+  startTimer(45 * 60);
+});
+</script>
+</body>
+</html>

@@ -84,6 +84,7 @@ h2 {
 <button id="simulate">Simulate tournamente</button>
 <button id="newTournament" disabled>Start a New Tournament</button>
 <button id="startRound" class="success" disabled>Start Round 1</button>
+<button id="restartRound" class="warning" disabled>Restart Current Round</button>
 </section>
 <h2>Simulation</h2>
 <section class="card" id="simulationSection" style="display:none"></section>
@@ -107,6 +108,11 @@ h2 {
 const PARTICIPANTS_KEY = 'participants';
 const STARTED_KEY = 'tournamentStarted';
 const SIMULATED_KEY = 'tournamentSimulated';
+const PAIRINGS_KEY = 'tournamentPairings';
+const RESULTS_KEY = 'tournamentResults';
+const SCORES_KEY = 'tournamentScores';
+const TOTAL_ROUNDS_KEY = 'tournamentTotalRounds';
+const CURRENT_ROUND_KEY = 'tournamentCurrentRound';
 
 let totalRounds = 0;
 let currentRound = 0;
@@ -123,15 +129,51 @@ function loadParticipants() {
   try { return JSON.parse(data); } catch (e) { return []; }
 }
 
-function savePairings() {}
+function loadPairings() {
+  const data = localStorage.getItem(PAIRINGS_KEY);
+  if (!data) return {};
+  try { return JSON.parse(data); } catch (e) { return {}; }
+}
 
-function loadResults() { return {}; }
+function savePairings() {
+  localStorage.setItem(PAIRINGS_KEY, JSON.stringify(pairings));
+}
 
-function saveResults() {}
+function loadResults() {
+  const data = localStorage.getItem(RESULTS_KEY);
+  if (!data) return {};
+  try { return JSON.parse(data); } catch (e) { return {}; }
+}
 
-function loadScores() { return {}; }
+function saveResults() {
+  localStorage.setItem(RESULTS_KEY, JSON.stringify(results));
+}
 
-function saveScores() {}
+function loadScores() {
+  const data = localStorage.getItem(SCORES_KEY);
+  if (!data) return {};
+  try { return JSON.parse(data); } catch (e) { return {}; }
+}
+
+function saveScores() {
+  localStorage.setItem(SCORES_KEY, JSON.stringify(scores));
+}
+
+function loadTotalRounds() {
+  return parseInt(localStorage.getItem(TOTAL_ROUNDS_KEY)) || 0;
+}
+
+function saveTotalRounds() {
+  localStorage.setItem(TOTAL_ROUNDS_KEY, totalRounds.toString());
+}
+
+function loadCurrentRound() {
+  return parseInt(localStorage.getItem(CURRENT_ROUND_KEY)) || 0;
+}
+
+function saveCurrentRound() {
+  localStorage.setItem(CURRENT_ROUND_KEY, currentRound.toString());
+}
 
 function getStarted() {
   return localStorage.getItem(STARTED_KEY) === 'true';
@@ -320,11 +362,13 @@ function calculateStandings() {
 function updateScores() {
   scores = calculateStandings();
   displayScores(scores);
+  saveScores();
 }
 
 function recordResult(round, index, outcome) {
   if (!results[round]) results[round] = {};
   results[round][index] = outcome;
+  saveResults();
   updateScores();
   displayResults(pairings[round], results[round], round);
   checkRoundCompletion(round);
@@ -392,16 +436,43 @@ function simulateTournament() {
   section.innerHTML = `Number of rounds: ${totalRounds}<br>Estimated time: ${formatDuration(totalMinutes)}`;
   section.style.display = 'block';
   setSimulated(true);
+  saveTotalRounds();
   document.getElementById('newTournament').disabled = false;
 }
 
 const participants = loadParticipants();
 
 function initialize() {
+  totalRounds = loadTotalRounds();
+  currentRound = loadCurrentRound();
+  pairings = loadPairings();
+  results = loadResults();
+  scores = loadScores();
   if (!getSimulated()) {
     document.getElementById('newTournament').disabled = true;
   }
+  if (totalRounds) {
+    createRoundSections();
+    for (let i = 1; i <= totalRounds; i++) {
+      const pr = pairings[i] || [];
+      const rr = results[i] || {};
+      displayPairings(pr, i);
+      displayResults(pr, rr, i);
+      if (i > currentRound) {
+        document.getElementById('pairingsList' + i).parentElement.style.display = 'none';
+        document.getElementById('resultsSection' + i).style.display = 'none';
+      }
+    }
+  }
   updateScores();
+  const startBtn = document.getElementById('startRound');
+  if (currentRound >= totalRounds && totalRounds > 0) {
+    startBtn.disabled = true;
+  } else {
+    startBtn.textContent = `Start Round ${currentRound + 1}`;
+    startBtn.disabled = getStarted();
+  }
+  document.getElementById('restartRound').disabled = currentRound === 0;
 }
 
 initialize();
@@ -440,6 +511,10 @@ document.getElementById('newTournament').addEventListener('click', () => {
   results = {};
   scores = {};
   currentRound = 0;
+  savePairings();
+  saveResults();
+  saveScores();
+  saveCurrentRound();
   clearInterval(tournamentInterval);
   tournamentStartTime = null;
   document.getElementById('tournamentTime').textContent = 'Tournament time: 00:00';
@@ -447,20 +522,50 @@ document.getElementById('newTournament').addEventListener('click', () => {
   createRoundSections();
   document.getElementById('startRound').disabled = false;
   document.getElementById('startRound').textContent = 'Start Round 1';
+  document.getElementById('restartRound').disabled = true;
 });
 
 document.getElementById('startRound').addEventListener('click', () => {
   if (currentRound >= totalRounds) return;
   currentRound++;
+  saveCurrentRound();
   if (!tournamentStartTime) startTournamentTimer();
   setStarted(true);
   let pr = currentRound === 1 ? randomizePairingsList(participants) : swissPairings();
   pairings[currentRound] = pr;
   results[currentRound] = {};
+  savePairings();
+  saveResults();
   displayPairings(pr, currentRound);
   displayResults(pr, results[currentRound], currentRound);
   document.getElementById('startRound').disabled = true;
+  document.getElementById('restartRound').disabled = false;
   startTimer(45 * 60);
+});
+
+document.getElementById('restartRound').addEventListener('click', () => {
+  if (currentRound <= 0) return;
+  const round = currentRound;
+  delete pairings[round];
+  delete results[round];
+  savePairings();
+  saveResults();
+  currentRound--;
+  saveCurrentRound();
+  const pairSec = document.getElementById('pairingsList' + (round)).parentElement;
+  const resSec = document.getElementById('resultsSection' + (round));
+  if (pairSec && resSec) {
+    pairSec.style.display = 'none';
+    pairSec.querySelector('ul').innerHTML = '';
+    resSec.style.display = 'none';
+    resSec.innerHTML = '';
+  }
+  updateScores();
+  document.getElementById('startRound').disabled = false;
+  document.getElementById('startRound').textContent = `Start Round ${round}`;
+  if (currentRound === 0) {
+    document.getElementById('restartRound').disabled = true;
+  }
 });
 
 function checkRoundCompletion(round) {
@@ -476,6 +581,7 @@ function checkRoundCompletion(round) {
       resSec.style.display = 'block';
     } else {
       document.getElementById('startRound').disabled = true;
+      document.getElementById('restartRound').disabled = true;
     }
   }
 }

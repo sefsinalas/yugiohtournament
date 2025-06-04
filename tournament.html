@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tournament</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/picnic">
 <style>
  body {
   font-family: Arial, sans-serif;
@@ -27,10 +28,12 @@
 </head>
 <body>
 <h1>Tournament</h1>
+<section class="card">
 <div id="timer"></div>
 <button id="newTournament">Start a New Tournament</button>
 <button id="randomize">Randomize Pairings</button>
-<button id="startRound">Start First Round</button>
+<button id="startRound" class="success">Start First Round</button>
+</section>
 <h2>Pairings</h2>
 <ul id="pairingsList"></ul>
 <script>

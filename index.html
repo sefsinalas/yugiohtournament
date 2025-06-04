@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Add Participant</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/picnic">
 <style>
  body {
   font-family: Arial, sans-serif;
@@ -30,7 +31,8 @@
 </head>
 <body>
 <h1>Add Participant</h1>
-<form id="participantForm">
+<section class="card">
+<form id="participantForm" class="flex two">
  <label for="name">Name:</label>
  <input type="text" id="name" required>
  <label for="paid">Paid:</label>
@@ -38,7 +40,8 @@
  <button type="submit">Add</button>
 </form>
 <ul id="participantList"></ul>
-<button id="clearAll">Delete All Participants</button>
+<button id="clearAll" class="warning">Delete All Participants</button>
+</section>
 <script>
  const form = document.getElementById('participantForm');
  const list = document.getElementById('participantList');

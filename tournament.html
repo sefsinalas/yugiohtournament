@@ -50,6 +50,18 @@ h2 {
   margin-bottom: 20px;
  }
 
+ #roundClock {
+  font-size: 2em;
+  text-align: center;
+  margin-bottom: 10px;
+ }
+
+ #tournamentTime {
+  text-align: center;
+  font-size: 0.9em;
+  margin-top: 5px;
+ }
+
  button {
   margin-right: 10px;
   margin-top: 5px;
@@ -73,7 +85,6 @@ h2 {
 <body>
 <div class="container">
 <div id="leftPane">
-<h1>Tournament</h1>
 <section class="card">
 <div id="timer"></div>
 <button id="simulate">Simulate tournamente</button>
@@ -92,6 +103,11 @@ h2 {
 </thead>
 <tbody id="scoreTableBody"></tbody>
 </table>
+<section id="clockSection" class="card">
+  <div id="roundClock">45:00</div>
+  <button id="startClock">Start the clock</button>
+  <div id="tournamentTime">Tournament time: 00:00</div>
+</section>
 </div>
 <script>
 const PARTICIPANTS_KEY = 'participants';
@@ -103,6 +119,9 @@ let currentRound = 0;
 let pairings = {};
 let results = {};
 let scores = {};
+let roundClockInterval = null;
+let tournamentStartTime = null;
+let tournamentInterval = null;
 
 function loadParticipants() {
   const data = localStorage.getItem(PARTICIPANTS_KEY);
@@ -269,6 +288,31 @@ function startTimer(duration) {
   }, 1000);
 }
 
+function startRoundClock() {
+  clearInterval(roundClockInterval);
+  let remaining = 45 * 60;
+  const display = document.getElementById('roundClock');
+  display.textContent = formatTime(remaining);
+  roundClockInterval = setInterval(() => {
+    remaining--;
+    display.textContent = formatTime(remaining);
+    if (remaining <= 0) {
+      clearInterval(roundClockInterval);
+    }
+  }, 1000);
+}
+
+function startTournamentTimer() {
+  if (tournamentStartTime) return;
+  tournamentStartTime = Date.now();
+  const el = document.getElementById('tournamentTime');
+  el.textContent = 'Tournament time: 00:00';
+  tournamentInterval = setInterval(() => {
+    const elapsed = Math.floor((Date.now() - tournamentStartTime) / 1000);
+    el.textContent = 'Tournament time: ' + formatTime(elapsed);
+  }, 1000);
+}
+
 function formatTime(seconds) {
   const m = Math.floor(seconds / 60).toString().padStart(2, '0');
   const s = (seconds % 60).toString().padStart(2, '0');
@@ -330,6 +374,8 @@ function createRoundSections() {
   }
 }
 
+document.getElementById('startClock').addEventListener('click', startRoundClock);
+
 document.getElementById('simulate').addEventListener('click', simulateTournament);
 
 document.getElementById('newTournament').addEventListener('click', () => {
@@ -338,6 +384,9 @@ document.getElementById('newTournament').addEventListener('click', () => {
   results = {};
   scores = {};
   currentRound = 0;
+  clearInterval(tournamentInterval);
+  tournamentStartTime = null;
+  document.getElementById('tournamentTime').textContent = 'Tournament time: 00:00';
   displayScores(scores);
   createRoundSections();
   document.getElementById('startRound').disabled = false;
@@ -347,6 +396,7 @@ document.getElementById('newTournament').addEventListener('click', () => {
 document.getElementById('startRound').addEventListener('click', () => {
   if (currentRound >= totalRounds) return;
   currentRound++;
+  if (!tournamentStartTime) startTournamentTimer();
   setStarted(true);
   let pr = currentRound === 1 ? randomizePairingsList(participants) : swissPairings();
   pairings[currentRound] = pr;

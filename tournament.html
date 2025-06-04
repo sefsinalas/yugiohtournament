@@ -153,6 +153,15 @@ function displayResults(pairings, results) {
     const draw = document.createElement('button');
     draw.textContent = 'Draw';
 
+    const outcome = results[idx];
+    if (outcome === 'p1') {
+      b1.classList.add('success');
+    } else if (outcome === 'p2') {
+      b2.classList.add('success');
+    } else if (outcome === 'draw') {
+      draw.classList.add('success');
+    }
+
     b1.addEventListener('click', () => recordResult(idx, 'p1'));
     b2.addEventListener('click', () => recordResult(idx, 'p2'));
     draw.addEventListener('click', () => recordResult(idx, 'draw'));

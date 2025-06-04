@@ -9,27 +9,62 @@
  body {
   font-family: Arial, sans-serif;
   margin: 20px;
+  background: #f6f6f6;
  }
+
+ .container {
+  max-width: 700px;
+  margin: auto;
+ }
+
+h1 {
+ text-align: center;
+}
+
+h2 {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
  form {
   margin-bottom: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
  }
+
  label {
   margin-right: 10px;
  }
-  ul {
-   list-style-type: none;
-   padding-left: 0;
-  }
-  li {
-   padding: 5px 0;
-  }
-  .drop {
-   display: none;
-   margin-left: 10px;
-  }
+
+ ul {
+  list-style-type: none;
+  padding-left: 0;
+ }
+
+ li {
+  padding: 8px 0;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  justify-content: space-between;
+ }
+
+ li:last-child {
+  border-bottom: none;
+ }
+
+ .drop {
+  display: none;
+  margin-left: 10px;
+ }
+
+ button {
+  margin-top: 5px;
+ }
 </style>
 </head>
 <body>
+<div class="container">
 <h1>Add Participant</h1>
 <section class="card">
 <form id="participantForm" class="flex two">
@@ -39,6 +74,7 @@
  <input type="checkbox" id="paid">
  <button type="submit">Add</button>
 </form>
+<h2>Participants</h2>
 <ul id="participantList"></ul>
 <button id="clearAll" class="warning">Delete All Participants</button>
 </section>
@@ -103,5 +139,6 @@ document.getElementById('clearAll').addEventListener('click', () => {
   });
  }
 </script>
+</div>
 </body>
 </html>

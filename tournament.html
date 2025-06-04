@@ -9,24 +9,53 @@
  body {
   font-family: Arial, sans-serif;
   margin: 20px;
+  background: #f6f6f6;
  }
+
+ .container {
+  max-width: 800px;
+  margin: auto;
+ }
+
+h1 {
+ text-align: center;
+ margin-bottom: 20px;
+}
+
+h2 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
  #timer {
-  font-size: 2em;
+  font-size: 2.5em;
+  text-align: center;
   margin-bottom: 20px;
  }
+
  button {
   margin-right: 10px;
+  margin-top: 5px;
  }
+
  ul {
   list-style-type: none;
   padding-left: 0;
  }
+
  li {
-  padding: 5px 0;
+  padding: 8px 0;
+  border-bottom: 1px solid #ddd;
+ }
+
+ li:last-child {
+  border-bottom: none;
  }
 </style>
 </head>
 <body>
+<div class="container">
 <h1>Tournament</h1>
 <section class="card">
 <div id="timer"></div>
@@ -35,7 +64,9 @@
 <button id="startRound" class="success">Start First Round</button>
 </section>
 <h2>Pairings</h2>
+<section class="card">
 <ul id="pairingsList"></ul>
+</section>
 <script>
 const PARTICIPANTS_KEY = 'participants';
 const STARTED_KEY = 'tournamentStarted';
@@ -144,5 +175,6 @@ document.getElementById('startRound').addEventListener('click', () => {
   startTimer(45 * 60);
 });
 </script>
+</div>
 </body>
 </html>

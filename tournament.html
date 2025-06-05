@@ -524,9 +524,14 @@ function initialize() {
       const rr = results[i] || {};
       displayPairings(pr, i);
       displayResults(pr, rr, i);
+      const pairEl = document.getElementById('pairingsList' + i).parentElement;
+      const resEl = document.getElementById('resultsSection' + i);
       if (i > currentRound) {
-        document.getElementById('pairingsList' + i).parentElement.style.display = 'none';
-        document.getElementById('resultsSection' + i).style.display = 'none';
+        pairEl.style.display = 'none';
+        resEl.style.display = 'none';
+      } else {
+        pairEl.style.display = 'block';
+        resEl.style.display = 'block';
       }
     }
   }

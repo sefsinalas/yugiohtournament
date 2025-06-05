@@ -6,12 +6,13 @@
 <title>Tournament</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/picnic">
 <style>
- body {
-  font-family: 'Segoe UI', Tahoma, sans-serif;
-  margin: 0;
-  background: linear-gradient(#fafafa, #eee);
-  color: #333;
- }
+  body {
+   font-family: 'Segoe UI', Tahoma, sans-serif;
+   margin: 0;
+   background: url('https://images.unsplash.com/photo-1611175694987-f2ddb6a41f27?auto=format&fit=crop&w=1200&q=60') no-repeat center center fixed;
+   background-size: cover;
+   color: #333;
+  }
 
  .container {
   width: 100%;
@@ -23,8 +24,18 @@
   align-items: flex-start;
  }
 
- #leftPane { flex: 2; }
- #rightPane { flex: 1; }
+#leftPane { flex: 2; }
+#rightPane { flex: 1; }
+
+#leftPane > section.card:first-of-type {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+#leftPane > section.card:first-of-type button {
+  flex: 1 1 180px;
+}
 
  #rightPane table {
   width: 100%;
@@ -32,6 +43,7 @@
   background: #fff;
   border-radius: 6px;
   overflow: hidden;
+  margin: 0 auto 20px;
  }
 
  #rightPane th, #rightPane td {
@@ -41,7 +53,8 @@
  }
 
 #rightPane th {
-  background: #f0f0f0;
+  background: #003366;
+  color: #fff;
  }
 
 h1 {
@@ -60,17 +73,26 @@ h2 {
 
 
 #roundClock {
- font-size: 3em;
+ font-size: 5em;
  text-align: center;
   margin-bottom: 10px;
   font-weight: bold;
 }
 
- #tournamentTime {
-  text-align: center;
-  font-size: 0.9em;
-  margin-top: 5px;
- }
+  #tournamentTime {
+   text-align: center;
+   font-size: 0.9em;
+   margin-top: 5px;
+  }
+
+  #clockSection {
+    margin-top: 20px;
+  }
+
+  #clockSection button {
+    display: block;
+    margin: 10px auto !important;
+  }
 
 button {
  margin-right: 10px;
@@ -108,7 +130,7 @@ button {
 <div id="leftPane">
 <section class="card">
 <button id="resetAll" class="danger">Restart Everything</button>
-<button id="simulate">Simulate tournamente</button>
+<button id="simulate">Simulate</button>
 <button id="newTournament" disabled>Start a New Tournament</button>
 <button id="startRound" class="success" disabled>Start Round 1</button>
 <button id="restartRound" class="warning" disabled>Restart Current Round</button>
@@ -118,16 +140,16 @@ button {
 <div id="roundsContainer"></div>
 </div>
 <div id="rightPane" class="card">
-<h2>Tabla de Posiciones</h2>
+<h2>Positions</h2>
 <table id="scoreTable">
 <thead>
-<tr><th>#</th><th>Nombre</th><th>Puntos</th><th>OMW%</th><th>MW%</th></tr>
+<tr><th>#</th><th>Name</th><th>Points</th><th>OMW%</th><th>MW%</th></tr>
 </thead>
 <tbody id="scoreTableBody"></tbody>
 </table>
 <section id="clockSection" class="card">
   <div id="roundClock">45:00</div>
-  <button id="startClock">Start the clock</button>
+  <button id="startClock">Start clock</button>
   <div id="tournamentTime">Tournament time: 00:00</div>
 </section>
 </div>

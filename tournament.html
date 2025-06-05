@@ -172,6 +172,11 @@ let roundClockInterval = null;
 let tournamentStartTime = null;
 let tournamentInterval = null;
 
+function maxRound(obj) {
+  const nums = Object.keys(obj).map(n => parseInt(n)).filter(n => !isNaN(n));
+  return nums.length ? Math.max(...nums) : 0;
+}
+
 function loadParticipants() {
   const data = localStorage.getItem(PARTICIPANTS_KEY);
   if (!data) return [];
@@ -497,6 +502,18 @@ function initialize() {
   pairings = loadPairings();
   results = loadResults();
   scores = loadScores();
+
+  const existingRounds = Math.max(maxRound(pairings), maxRound(results));
+  if (existingRounds > 0) {
+    if (totalRounds < existingRounds) {
+      totalRounds = existingRounds;
+      saveTotalRounds();
+    }
+    if (currentRound < existingRounds) {
+      currentRound = existingRounds;
+      saveCurrentRound();
+    }
+  }
   if (!getSimulated()) {
     document.getElementById('newTournament').disabled = true;
   }
@@ -507,9 +524,14 @@ function initialize() {
       const rr = results[i] || {};
       displayPairings(pr, i);
       displayResults(pr, rr, i);
+      const pairEl = document.getElementById('pairingsList' + i).parentElement;
+      const resEl = document.getElementById('resultsSection' + i);
       if (i > currentRound) {
-        document.getElementById('pairingsList' + i).parentElement.style.display = 'none';
-        document.getElementById('resultsSection' + i).style.display = 'none';
+        pairEl.style.display = 'none';
+        resEl.style.display = 'none';
+      } else {
+        pairEl.style.display = 'block';
+        resEl.style.display = 'block';
       }
     }
   }

@@ -81,6 +81,7 @@ h2 {
 <div class="container">
 <div id="leftPane">
 <section class="card">
+<button id="resetAll" class="danger">Restart Everything</button>
 <button id="simulate">Simulate tournamente</button>
 <button id="newTournament" disabled>Start a New Tournament</button>
 <button id="startRound" class="success" disabled>Start Round 1</button>
@@ -502,6 +503,18 @@ function createRoundSections() {
 }
 
 document.getElementById('startClock').addEventListener('click', startRoundClock);
+
+document.getElementById('resetAll').addEventListener('click', () => {
+  if (!confirm('Are you sure you want to restart everything? This will remove all tournament data.')) return;
+  localStorage.removeItem(STARTED_KEY);
+  localStorage.removeItem(SIMULATED_KEY);
+  localStorage.removeItem(PAIRINGS_KEY);
+  localStorage.removeItem(RESULTS_KEY);
+  localStorage.removeItem(SCORES_KEY);
+  localStorage.removeItem(TOTAL_ROUNDS_KEY);
+  localStorage.removeItem(CURRENT_ROUND_KEY);
+  location.reload();
+});
 
 document.getElementById('simulate').addEventListener('click', simulateTournament);
 

@@ -172,6 +172,11 @@ let roundClockInterval = null;
 let tournamentStartTime = null;
 let tournamentInterval = null;
 
+function maxRound(obj) {
+  const nums = Object.keys(obj).map(n => parseInt(n)).filter(n => !isNaN(n));
+  return nums.length ? Math.max(...nums) : 0;
+}
+
 function loadParticipants() {
   const data = localStorage.getItem(PARTICIPANTS_KEY);
   if (!data) return [];
@@ -497,6 +502,18 @@ function initialize() {
   pairings = loadPairings();
   results = loadResults();
   scores = loadScores();
+
+  const existingRounds = Math.max(maxRound(pairings), maxRound(results));
+  if (existingRounds > 0) {
+    if (totalRounds < existingRounds) {
+      totalRounds = existingRounds;
+      saveTotalRounds();
+    }
+    if (currentRound < existingRounds) {
+      currentRound = existingRounds;
+      saveCurrentRound();
+    }
+  }
   if (!getSimulated()) {
     document.getElementById('newTournament').disabled = true;
   }

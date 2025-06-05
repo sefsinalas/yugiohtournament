@@ -7,16 +7,20 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/picnic">
 <style>
  body {
-  font-family: Arial, sans-serif;
-  margin: 20px;
-  background: #f6f6f6;
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  margin: 0;
+  background: linear-gradient(#fafafa, #eee);
+  color: #333;
  }
 
  .container {
-  max-width: 1000px;
-  margin: auto;
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 20px;
   display: flex;
   gap: 20px;
+  align-items: flex-start;
  }
 
  #leftPane { flex: 2; }
@@ -25,31 +29,42 @@
  #rightPane table {
   width: 100%;
   border-collapse: collapse;
+  background: #fff;
+  border-radius: 6px;
+  overflow: hidden;
  }
 
  #rightPane th, #rightPane td {
   border-bottom: 1px solid #ddd;
-  padding: 4px;
+  padding: 6px;
   text-align: left;
  }
 
+#rightPane th {
+  background: #f0f0f0;
+ }
+
 h1 {
- text-align: center;
- margin-bottom: 20px;
+  text-align: center;
+  margin: 20px 0;
+  font-size: 2em;
+  color: #444;
 }
 
 h2 {
-  margin-top: 0;
-  margin-bottom: 10px;
-  text-align: center;
+ margin-top: 0;
+ margin-bottom: 10px;
+ text-align: center;
+  color: #555;
 }
 
 
- #roundClock {
-  font-size: 3em;
-  text-align: center;
+#roundClock {
+ font-size: 3em;
+ text-align: center;
   margin-bottom: 10px;
- }
+  font-weight: bold;
+}
 
  #tournamentTime {
   text-align: center;
@@ -57,10 +72,11 @@ h2 {
   margin-top: 5px;
  }
 
- button {
-  margin-right: 10px;
-  margin-top: 5px;
- }
+button {
+ margin-right: 10px;
+ margin-top: 5px;
+  border-radius: 4px;
+}
 
  ul {
   list-style-type: none;
@@ -70,7 +86,17 @@ h2 {
  li {
   padding: 8px 0;
   border-bottom: 1px solid #ddd;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
  }
+
+.card {
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+}
 
  li:last-child {
   border-bottom: none;

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Instructions</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/picnic">
+<style>
+ body {
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  margin: 0;
+  padding: 20px;
+  background: linear-gradient(#fafafa, #eee);
+  min-height: 100vh;
+  position: relative;
+ }
+ h1 {
+  text-align: center;
+ }
+ .home-link {
+  position: absolute;
+  bottom: 10px;
+  width: 100%;
+  text-align: center;
+ }
+</style>
+</head>
+<body>
+<h1>Instructions</h1>
+<h2>Running the App</h2>
+<p>This project is entirely client side. Open <code>index.html</code> in a web browser to start. Participant data is stored in your browser's local storage so it stays between sessions.</p>
+<h2>Participants</h2>
+<p>The Participants page lets you manage the list of players stored in the browser.</p>
+<h3>Add participants</h3>
+<ul>
+<li>Fill in a name in the input box.</li>
+<li>Optionally tick <strong>Paid</strong> to mark the participant as paid.</li>
+<li>Press <strong>Add</strong> to save the participant.</li>
+</ul>
+<h3>Delete all and delete one</h3>
+<ul>
+<li>Each participant in the list has a <strong>Delete</strong> button for removing just that entry.</li>
+<li>Use <strong>Delete All Participants</strong> to clear the entire list at once.</li>
+</ul>
+<h3>Choose a random participant</h3>
+<ul>
+<li>Click <strong>Pick Random Player</strong> to start a short countdown and choose someone at random from the current list.</li>
+</ul>
+<h2>Tournament</h2>
+<p>The Tournament page manages pairings, results and the scoreboard.</p>
+<h3>Steps</h3>
+<ol>
+<li>Press <strong>Simulate</strong> to see the number of rounds and estimated duration.</li>
+<li>After simulation, click <strong>Start a New Tournament</strong>.</li>
+<li>Use <strong>Start Round</strong> to generate pairings. Record results by clicking the winner (or <strong>Draw</strong>).</li>
+<li>When all matches are recorded, the button changes to start the next round.</li>
+<li><strong>Restart Current Round</strong> generates new pairings for the same round if needed.</li>
+<li>Use <strong>Restart Everything</strong> to wipe all tournament data.</li>
+</ol>
+<h3>Clock</h3>
+<ul>
+<li><strong>Start clock</strong> begins a 45 minute round timer and shows the overall tournament time.</li>
+</ul>
+<h3>In case of error</h3>
+<ul>
+<li>If anything gets out of sync or you want to start over, use <strong>Restart Everything</strong> and reload the page.</li>
+</ul>
+<div class="home-link">
+ <a class="button" href="index.html">Back to Home</a>
+</div>
+</body>
+</html>

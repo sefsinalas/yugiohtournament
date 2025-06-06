@@ -72,9 +72,23 @@ li {
   padding: 15px;
 }
 
- button {
-  margin-top: 5px;
- }
+button {
+ margin-top: 5px;
+}
+
+#randomSection {
+  text-align: center;
+}
+
+#randomCountdown {
+  font-size: 2em;
+  margin-top: 10px;
+}
+
+#randomResult {
+  margin-top: 10px;
+  font-weight: bold;
+}
 </style>
 </head>
 <body>
@@ -91,6 +105,13 @@ li {
 <h2>Participants</h2>
 <ul id="participantList"></ul>
 <button id="clearAll" class="warning">Delete All Participants</button>
+</section>
+
+<section id="randomSection" class="card">
+  <h2>Random Player Selector</h2>
+  <button id="randomButton">Pick Random Player</button>
+  <div id="randomCountdown"></div>
+  <div id="randomResult"></div>
 </section>
 <script>
  const form = document.getElementById('participantForm');
@@ -147,11 +168,34 @@ document.getElementById('clearAll').addEventListener('click', () => {
   form.reset();
  });
 
- function showDropButtons() {
-  document.querySelectorAll('.drop').forEach(btn => {
-   btn.style.display = 'inline';
-  });
- }
+function showDropButtons() {
+ document.querySelectorAll('.drop').forEach(btn => {
+  btn.style.display = 'inline';
+ });
+}
+
+document.getElementById('randomButton').addEventListener('click', () => {
+ let count = 5;
+ const countdownEl = document.getElementById('randomCountdown');
+ const resultEl = document.getElementById('randomResult');
+ countdownEl.textContent = count;
+ resultEl.textContent = '';
+ const interval = setInterval(() => {
+  count--;
+  if (count > 0) {
+   countdownEl.textContent = count;
+  } else {
+   clearInterval(interval);
+   countdownEl.textContent = '';
+   if (participants.length === 0) {
+    resultEl.textContent = 'No participants';
+   } else {
+    const idx = Math.floor(Math.random() * participants.length);
+    resultEl.textContent = participants[idx].name;
+   }
+  }
+ }, 1000);
+});
 </script>
 </div>
 </body>

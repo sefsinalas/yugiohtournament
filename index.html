@@ -3,200 +3,33 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Add Participant</title>
+<title>Yu-Gi-Oh! Tournament</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/picnic">
 <style>
  body {
   font-family: 'Segoe UI', Tahoma, sans-serif;
   margin: 0;
   background: linear-gradient(#fafafa, #eee);
-  color: #333;
- }
-
- .container {
-  max-width: 1200px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 20px;
- }
-
-h1 {
-  text-align: center;
-  font-size: 2em;
-  margin: 20px 0;
-  color: #444;
-}
-
-h2 {
-  margin-top: 0;
-  margin-bottom: 10px;
-}
-
- form {
-  margin-bottom: 20px;
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
- }
-
- label {
-  margin-right: 10px;
- }
-
- ul {
-  list-style-type: none;
-  padding-left: 0;
- }
-
-li {
- padding: 8px 0;
- border-bottom: 1px solid #ddd;
- display: flex;
-  justify-content: space-between;
   align-items: center;
-}
-
- li:last-child {
-  border-bottom: none;
+  justify-content: center;
+  height: 100vh;
  }
-
-.drop {
- display: none;
- margin-left: 10px;
-}
-
-.card {
-  background: #fff;
-  border-radius: 6px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  padding: 15px;
-}
-
-button {
- margin-top: 5px;
-}
-
-#randomSection {
+ .main-buttons {
   text-align: center;
-}
-
-#randomCountdown {
-  font-size: 2em;
-  margin-top: 10px;
-}
-
-#randomResult {
-  margin-top: 10px;
-  font-weight: bold;
-}
+ }
+ .main-buttons a {
+  display: block;
+  margin: 20px auto;
+  padding: 40px 60px;
+  font-size: 1.5em;
+ }
 </style>
 </head>
 <body>
-<div class="container">
-<h1>Add Participant</h1>
-<section class="card">
-<form id="participantForm" class="flex two">
- <label for="name">Name:</label>
- <input type="text" id="name" required>
- <label for="paid">Paid:</label>
- <input type="checkbox" id="paid">
- <button type="submit">Add</button>
-</form>
-<h2>Participants</h2>
-<ul id="participantList"></ul>
-<button id="clearAll" class="warning">Delete All Participants</button>
-</section>
-
-<section id="randomSection" class="card">
-  <h2>Random Player Selector</h2>
-  <button id="randomButton">Pick Random Player</button>
-  <div id="randomCountdown"></div>
-  <div id="randomResult"></div>
-</section>
-<script>
- const form = document.getElementById('participantForm');
- const list = document.getElementById('participantList');
- const STORAGE_KEY = 'participants';
-
- function loadParticipants() {
-  const data = localStorage.getItem(STORAGE_KEY);
-  if (!data) return [];
-  try { return JSON.parse(data); } catch (e) { return []; }
- }
-
- function saveParticipants(participants) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(participants));
- }
-
- function displayParticipants(participants) {
-  list.innerHTML = '';
-  participants.forEach((p, idx) => {
-   const li = document.createElement('li');
-   const text = document.createElement('span');
-   text.textContent = `${p.name} - ${p.paid ? 'Paid' : 'Not Paid'}`;
-   const dropBtn = document.createElement('button');
-   dropBtn.textContent = 'Drop';
-   dropBtn.className = 'drop';
-   dropBtn.addEventListener('click', () => {
-    participants.splice(idx, 1);
-    saveParticipants(participants);
-    displayParticipants(participants);
-   });
-   li.appendChild(text);
-   li.appendChild(dropBtn);
-   list.appendChild(li);
-  });
- }
-
-const participants = loadParticipants();
-displayParticipants(participants);
-
-document.getElementById('clearAll').addEventListener('click', () => {
- participants.length = 0;
- saveParticipants(participants);
- displayParticipants(participants);
-});
-
- form.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const name = document.getElementById('name').value.trim();
-  const paid = document.getElementById('paid').checked;
-  if (name === '') return;
-  participants.push({ name, paid });
-  saveParticipants(participants);
-  displayParticipants(participants);
-  form.reset();
- });
-
-function showDropButtons() {
- document.querySelectorAll('.drop').forEach(btn => {
-  btn.style.display = 'inline';
- });
-}
-
-document.getElementById('randomButton').addEventListener('click', () => {
- let count = 5;
- const countdownEl = document.getElementById('randomCountdown');
- const resultEl = document.getElementById('randomResult');
- countdownEl.textContent = count;
- resultEl.textContent = '';
- const interval = setInterval(() => {
-  count--;
-  if (count > 0) {
-   countdownEl.textContent = count;
-  } else {
-   clearInterval(interval);
-   countdownEl.textContent = '';
-   if (participants.length === 0) {
-    resultEl.textContent = 'No participants';
-   } else {
-    const idx = Math.floor(Math.random() * participants.length);
-    resultEl.textContent = participants[idx].name;
-   }
-  }
- }, 1000);
-});
-</script>
+<div class="main-buttons">
+ <a class="button" href="participants.html">Participants</a>
+ <a class="button" href="tournament.html">Tournament</a>
 </div>
 </body>
 </html>

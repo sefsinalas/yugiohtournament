@@ -4,6 +4,12 @@ Welcome duelist! This hobby project is a light‑weight web app for hosting Swis
 
 ![Duel Disk](https://img.shields.io/badge/Yu--Gi--Oh!-Tournament-blueviolet?style=for-the-badge)
 
+## 🌐 Live Demo
+
+A hosted version is available at [https://sefsinalas.github.io/yugiohtournament/](https://sefsinalas.github.io/yugiohtournament/).
+
+If you're hosting this project on GitHub, you can also add the same link in the repo's **About** section for quick access.
+
 ## ✨ Features
 
 - Add and remove participants with ease

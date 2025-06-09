@@ -153,6 +153,7 @@ button {
   <div id="tournamentTime">Tournament time: 00:00</div>
 </section>
 </div>
+<script src="swiss.js"></script>
 <script>
 const PARTICIPANTS_KEY = 'participants';
 const STARTED_KEY = 'tournamentStarted';
@@ -261,21 +262,18 @@ function randomizePairingsList(participants) {
 }
 
 function swissPairings() {
-  const players = participants.map(p => p.name).sort((a, b) => {
-    const sb = scores[b] || { points: 0, omwp: 0, mwp: 0 };
-    const sa = scores[a] || { points: 0, omwp: 0, mwp: 0 };
-    if (sb.points !== sa.points) return sb.points - sa.points;
-    if (sb.omwp !== sa.omwp) return sb.omwp - sa.omwp;
-    if (sb.mwp !== sa.mwp) return sb.mwp - sa.mwp;
-    return a.localeCompare(b);
+  const players = participants.map(p => {
+    const s = scores[p.name] || { points: 0, omwp: 0, mwp: 0 };
+    return { name: p.name, points: s.points, omwp: s.omwp, mwp: s.mwp };
   });
-  const out = [];
-  for (let i = 0; i < players.length; i += 2) {
-    const p1 = players[i];
-    const p2 = players[i + 1] || 'BYE';
-    out.push({ p1, p2 });
+  const history = new Set();
+  for (const r in pairings) {
+    (pairings[r] || []).forEach(pr => {
+      history.add(`${pr.p1}|${pr.p2}`);
+      history.add(`${pr.p2}|${pr.p1}`);
+    });
   }
-  return out;
+  return Swiss.pair(players, history);
 }
 
 function displayPairings(roundPairings, round) {

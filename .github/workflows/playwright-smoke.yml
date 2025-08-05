@@ -1,0 +1,11 @@
+name: Playwright Smoke
+
+on:
+  repository_dispatch:
+    types: [playwrightSmoke]
+
+jobs:
+  hello:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "HELLO WORLD"

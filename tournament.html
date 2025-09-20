@@ -301,6 +301,8 @@ function displayResults(roundPairings, roundResults, round) {
     b2.textContent = p.p2;
     const draw = document.createElement('button');
     draw.textContent = 'Draw';
+    const doubleLoss = document.createElement('button');
+    doubleLoss.textContent = 'Both Lose';
 
     const outcome = roundResults[idx];
     if (outcome === 'p1') {
@@ -309,15 +311,19 @@ function displayResults(roundPairings, roundResults, round) {
       b2.classList.add('success');
     } else if (outcome === 'draw') {
       draw.classList.add('success');
+    } else if (outcome === 'doubleLoss') {
+      doubleLoss.classList.add('danger');
     }
 
     b1.addEventListener('click', () => recordResult(round, idx, 'p1'));
     b2.addEventListener('click', () => recordResult(round, idx, 'p2'));
     draw.addEventListener('click', () => recordResult(round, idx, 'draw'));
+    doubleLoss.addEventListener('click', () => recordResult(round, idx, 'doubleLoss'));
 
     div.appendChild(b1);
     div.appendChild(b2);
     div.appendChild(draw);
+    div.appendChild(doubleLoss);
     container.appendChild(div);
   });
 }
@@ -391,6 +397,8 @@ function calculateStandings() {
         stats[p2].points += 1;
         stats[p1].draws += 1;
         stats[p2].draws += 1;
+      } else if (res === 'doubleLoss') {
+        // both players receive a loss; matches counted above
       }
     });
   }
